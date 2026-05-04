@@ -1,0 +1,9 @@
+# Insert your preferred key mappings here.
+unmap f
+map ; LinkHints.activateMode
+unmap F
+map : LinkHints.activateModeToOpenInNewTab
+unmap >>
+unmap <<
+map <c-down> moveTabRight
+map <c-up> moveTabLeft
