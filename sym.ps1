@@ -30,4 +30,19 @@ New-Item -ItemType SymbolicLink -Path $mpvTarget -Target $mpvSource | Out-Null
 Write-Host "✔ mpv config linked" -ForegroundColor Green
 
 
+# Git config
+$gitTarget = "$HOME\.gitconfig"
+$gitSource = "$HOME\dotfiles-win\.gitconfig"
+
+Write-Host "Linking Git config..." -ForegroundColor Yellow
+
+if (Test-Path $gitTarget) {
+    Remove-Item $gitTarget -Force
+    Write-Host "Removed existing .gitconfig" -ForegroundColor DarkGray
+}
+
+New-Item -ItemType SymbolicLink -Path $gitTarget -Target $gitSource | Out-Null
+Write-Host "✔ Git config linked" -ForegroundColor Green
+
+
 Write-Host "Done." -ForegroundColor Cyan

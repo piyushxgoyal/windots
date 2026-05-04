@@ -1,0 +1,23 @@
+[user]
+    name = Piyush Goyal
+    email = dev.piyushgoyal@gmail.com
+
+[core]
+    editor = zed
+    autocrlf = input
+    symlinks = true
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = false
+
+[push]
+    default = simple
+
+[credential]
+    helper = manager-core
+
+[color]
+    ui = auto
