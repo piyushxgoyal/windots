@@ -1,105 +1,162 @@
-
-#f45873b3-b655-43a6-b217-97c00aa0db58 PowerToys CommandNotFound module
-
-Import-Module -Name Microsoft.WinGet.CommandNotFound
-#f45873b3-b655-43a6-b217-97c00aa0db58
-$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-if (Test-Path($ChocolateyProfile)) {
-  Import-Module "$ChocolateyProfile"
+# PowerToys CommandNotFound
+if (Get-Module -ListAvailable -Name Microsoft.WinGet.CommandNotFound)
+{
+    Import-Module Microsoft.WinGet.CommandNotFound
 }
 
-#STARSHIP
-Invoke-Expression (&starship init powershell)
-#zoxide
-Invoke-Expression (& { (zoxide init powershell | Out-String) })
+# Chocolatey
+$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+if (Test-Path $ChocolateyProfile)
+{
+    Import-Module $ChocolateyProfile
+}
 
-#ALIAS
+# Starship
+if (Get-Command starship -ErrorAction SilentlyContinue)
+{
+    Invoke-Expression (& starship init powershell)
+}
+
+# ALIASES
 Set-Alias vim nvim
+
 Set-Alias wi winget-install
 Set-Alias ws winget-search
 Set-Alias wua winget-upgrade-all
 Set-Alias wu winget-upgrade
 Set-Alias wrem winget-remove
 Set-Alias wsh winget-show
-Set-ALias wl winget-list
+Set-Alias wl winget-list
+
 Set-Alias cdcode cd-code-folder
 Set-Alias dsktp cd-desktop
-Set-ALias ff fastfetch-windows
 
+Set-Alias ff fastfetch-windows
+
+Set-Alias ls eza-ls
 Set-Alias ll eza-list-long
 Set-Alias l eza-list
 Set-Alias lt eza-tree
 Set-Alias lsd eza-list-directories
 
+# FUNCTIONS
 
-#Functions
+# ls = detailed view, include hidden files
 
-# Dir Functions
-function eza-list-long {
-    eza -la --icons --header --group-directories-first --git --time-style=long-iso
+function eza-ls
+{
+    eza -a `
+        --icons `
+        --header `
+        --group-directories-first `
+        @args
 }
 
-function eza-list {
-    eza --icons --group-directories-first
-  }
 
-function eza-tree {
-    eza --tree --icons
+# l = normal listing, no hidden files
+function eza-list
+{
+    eza `
+        --icons `
+        --group-directories-first `
+        @args
 }
 
-function eza-list-directories {
-    eza -D --icons
+# ll = full detailed view + git
+function eza-list-long
+{
+    eza -la `
+        --icons `
+        --header `
+        --group-directories-first `
+        --git `
+        --time-style=long-iso `
+        @args
 }
 
-# fastfetch-windows
-function fastfetch-windows {
+# lsd = directories only
+function eza-list-directories
+{
+    eza -D `
+        --icons `
+        --group-directories-first `
+        @args
+}
+
+# lt = tree
+function eza-tree
+{
+    eza `
+        --tree `
+        --icons `
+        @args
+}
+
+# Fastfetch
+function fastfetch-windows
+{
     fastfetch --logo windows @args
 }
 
+# Navigation
+function cd-code-folder
+{
+    Set-Location "$HOME\Desktop\code"
+}
 
-function cd-code-folder {
-    Set-Location "C:\Users\KIIT\Desktop\code"
+function cd-desktop
+{
+    Set-Location "$HOME\Desktop"
 }
-function cd-desktop {
-    Set-Location "C:\Users\KIIT\Desktop"
-}
-function winget-search {
+
+# Winget Functions
+function winget-search
+{
     param(
         [string[]]$Arguments
     )
     & winget.exe search @Arguments
 }
-function winget-install {
+
+function winget-install
+{
     param(
         [string[]]$Arguments
     )
     & winget.exe install @Arguments
 }
-function winget-upgrade-all {
-    param(
-        [string[]]$Arguments
-    )
+
+function winget-upgrade-all
+{
     & winget.exe upgrade --all
 }
-function winget-upgrade {
+
+function winget-upgrade
+{
     param(
         [string[]]$Arguments
     )
     & winget.exe upgrade @Arguments
 }
-function winget-remove {
+
+function winget-remove
+{
     param(
         [string[]]$Arguments
     )
     & winget.exe remove @Arguments
 }
-function winget-show {
+
+function winget-show
+{
     param(
         [string[]]$Arguments
     )
     & winget.exe show @Arguments
 }
-function winget-list {
+
+function winget-list
+{
     param(
         [string[]]$Arguments
     )
