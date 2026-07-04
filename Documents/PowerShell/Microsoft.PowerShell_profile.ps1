@@ -1,25 +1,78 @@
-# PowerToys CommandNotFound
+# ===========================
+# PowerShell Profile
+# ===========================
+
+# ---------------------------
+# PowerToys Command Not Found
+# ---------------------------
 if (Get-Module -ListAvailable -Name Microsoft.WinGet.CommandNotFound)
 {
     Import-Module Microsoft.WinGet.CommandNotFound
 }
 
+# ---------------------------
 # Chocolatey
+# ---------------------------
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path $ChocolateyProfile)
 {
     Import-Module $ChocolateyProfile
 }
 
+# ---------------------------
+# PSReadLine
+# ---------------------------
+if (Get-Module -ListAvailable -Name PSReadLine)
+{
+    Import-Module PSReadLine
+
+    Set-PSReadLineOption -PredictionSource HistoryAndPlugin
+    Set-PSReadLineOption -PredictionViewStyle ListView
+    Set-PSReadLineOption -EditMode Windows
+}
+
+# ---------------------------
+# PSFzf
+# ---------------------------
+if (Get-Module -ListAvailable -Name PSFzf)
+{
+    Import-Module PSFzf
+
+    Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t'
+    Set-PsFzfOption -PSReadlineChordReverseHistory 'Ctrl+r'
+}
+
+# ---------------------------
 # Starship
+# ---------------------------
 if (Get-Command starship -ErrorAction SilentlyContinue)
 {
     Invoke-Expression (& starship init powershell)
 }
 
+# ---------------------------
+# zoxide
+# ---------------------------
+if (Get-Command zoxide -ErrorAction SilentlyContinue)
+{
+    Invoke-Expression (& { (zoxide init powershell | Out-String) })
+}
+
+# ---------------------------
+# Shared eza defaults
+# ---------------------------
+$EzaDefaults = @(
+    "--icons"
+    "--group-directories-first"
+)
+
+# ===========================
 # ALIASES
+# ===========================
+
 Set-Alias vim nvim
 
+# Winget
 Set-Alias wi winget-install
 Set-Alias ws winget-search
 Set-Alias wua winget-upgrade-all
@@ -28,77 +81,61 @@ Set-Alias wrem winget-remove
 Set-Alias wsh winget-show
 Set-Alias wl winget-list
 
+# Navigation
 Set-Alias cdcode cd-code-folder
 Set-Alias dsktp cd-desktop
 
+# Utilities
 Set-Alias ff fastfetch-windows
 
+# eza
+Set-Alias l eza-list
+Set-Alias la eza-ls
 Set-Alias ls eza-ls
 Set-Alias ll eza-list-long
-Set-Alias l eza-list
 Set-Alias lt eza-tree
 Set-Alias lsd eza-list-directories
 
+# ===========================
 # FUNCTIONS
+# ===========================
 
-# ls = detailed view, include hidden files
+# ---------- eza ----------
 
 function eza-ls
 {
-    eza -a `
-        --icons `
-        --header `
-        --group-directories-first `
-        @args
+    eza @EzaDefaults -a --header @args
 }
 
-
-# l = normal listing, no hidden files
 function eza-list
 {
-    eza `
-        --icons `
-        --group-directories-first `
-        @args
+    eza @EzaDefaults @args
 }
 
-# ll = full detailed view + git
 function eza-list-long
 {
-    eza -la `
-        --icons `
-        --header `
-        --group-directories-first `
-        --git `
-        --time-style=long-iso `
-        @args
+    eza @EzaDefaults -la --header --git --time-style=long-iso @args
 }
 
-# lsd = directories only
 function eza-list-directories
 {
-    eza -D `
-        --icons `
-        --group-directories-first `
-        @args
+    eza @EzaDefaults -D @args
 }
 
-# lt = tree
 function eza-tree
 {
-    eza `
-        --tree `
-        --icons `
-        @args
+    eza @EzaDefaults --tree @args
 }
 
-# Fastfetch
+# ---------- Fastfetch ----------
+
 function fastfetch-windows
 {
     fastfetch --logo windows @args
 }
 
-# Navigation
+# ---------- Navigation ----------
+
 function cd-code-folder
 {
     Set-Location "$HOME\Desktop\code"
@@ -109,20 +146,17 @@ function cd-desktop
     Set-Location "$HOME\Desktop"
 }
 
-# Winget Functions
+# ---------- Winget ----------
+
 function winget-search
 {
-    param(
-        [string[]]$Arguments
-    )
+    param([string[]]$Arguments)
     & winget.exe search @Arguments
 }
 
 function winget-install
 {
-    param(
-        [string[]]$Arguments
-    )
+    param([string[]]$Arguments)
     & winget.exe install @Arguments
 }
 
@@ -133,32 +167,42 @@ function winget-upgrade-all
 
 function winget-upgrade
 {
-    param(
-        [string[]]$Arguments
-    )
+    param([string[]]$Arguments)
     & winget.exe upgrade @Arguments
 }
 
 function winget-remove
 {
-    param(
-        [string[]]$Arguments
-    )
+    param([string[]]$Arguments)
     & winget.exe remove @Arguments
 }
 
 function winget-show
 {
-    param(
-        [string[]]$Arguments
-    )
+    param([string[]]$Arguments)
     & winget.exe show @Arguments
 }
 
 function winget-list
 {
-    param(
-        [string[]]$Arguments
-    )
+    param([string[]]$Arguments)
     & winget.exe list @Arguments
 }
+
+# ---------- Java ----------
+
+function java17
+{
+    $env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
+    $env:Path = "$env:JAVA_HOME\bin;" + (($env:Path -split ';') | Where-Object { $_ -notmatch 'Java\\jdk-' } | Join-String -Separator ';')
+    java -version
+}
+
+function java21
+{
+    $env:JAVA_HOME = "C:\Program Files\Java\jdk-21"
+    $env:Path = "$env:JAVA_HOME\bin;" + (($env:Path -split ';') | Where-Object { $_ -notmatch 'Java\\jdk-' } | Join-String -Separator ';')
+    java -version
+}
+
+
