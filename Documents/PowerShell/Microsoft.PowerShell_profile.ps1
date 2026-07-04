@@ -11,15 +11,6 @@ if (Get-Module -ListAvailable -Name Microsoft.WinGet.CommandNotFound)
 }
 
 # ---------------------------
-# Chocolatey
-# ---------------------------
-$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-if (Test-Path $ChocolateyProfile)
-{
-    Import-Module $ChocolateyProfile
-}
-
-# ---------------------------
 # PSReadLine
 # ---------------------------
 if (Get-Module -ListAvailable -Name PSReadLine)
@@ -27,7 +18,7 @@ if (Get-Module -ListAvailable -Name PSReadLine)
     Import-Module PSReadLine
 
     Set-PSReadLineOption -PredictionSource HistoryAndPlugin
-    Set-PSReadLineOption -PredictionViewStyle ListView
+    Set-PSReadLineOption -PredictionViewStyle InlineView
     Set-PSReadLineOption -EditMode Windows
 }
 
@@ -95,6 +86,9 @@ Set-Alias ls eza-ls
 Set-Alias ll eza-list-long
 Set-Alias lt eza-tree
 Set-Alias lsd eza-list-directories
+
+# tools
+Set-Alias cat bat
 
 # ===========================
 # FUNCTIONS
