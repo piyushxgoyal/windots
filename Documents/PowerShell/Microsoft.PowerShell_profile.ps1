@@ -17,9 +17,26 @@ if (Get-Module -ListAvailable -Name PSReadLine)
 {
     Import-Module PSReadLine
 
+    # Predictions
     Set-PSReadLineOption -PredictionSource HistoryAndPlugin
     Set-PSReadLineOption -PredictionViewStyle InlineView
-    Set-PSReadLineOption -EditMode Windows
+
+    # History
+    Set-PSReadLineOption -HistoryNoDuplicates
+
+    # Disable terminal bell
+    Set-PSReadLineOption -BellStyle None
+
+    # Delete previous word
+    Set-PSReadLineKeyHandler -Chord Ctrl+Backspace -Function BackwardKillWord
+}
+
+# ---------------------------
+# CompletionPredictor
+# ---------------------------
+if (Get-Module -ListAvailable -Name CompletionPredictor)
+{
+    Import-Module CompletionPredictor
 }
 
 # ---------------------------
