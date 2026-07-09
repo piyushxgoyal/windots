@@ -19,7 +19,11 @@ if (Get-Module -ListAvailable -Name PSReadLine)
 
     # Predictions
     Set-PSReadLineOption -PredictionSource HistoryAndPlugin
-    Set-PSReadLineOption -PredictionViewStyle InlineView
+    Set-PSReadLineOption -PredictionViewStyle ListView
+
+    # Vim-style navigation in ListView
+    Set-PSReadLineKeyHandler -Chord Ctrl+j -Function NextSuggestion
+    Set-PSReadLineKeyHandler -Chord Ctrl+k -Function PreviousSuggestion
 
     # History
     Set-PSReadLineOption -HistoryNoDuplicates
@@ -29,15 +33,37 @@ if (Get-Module -ListAvailable -Name PSReadLine)
 
     # Delete previous word
     Set-PSReadLineKeyHandler -Chord Ctrl+Backspace -Function BackwardKillWord
+
+    # Better Tab completion
+    Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+
+    # History search by current input
+    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+
+    # Set-PSReadLineOption -Colors @{
+    #    Selection = "`e[7m"
+    # }
 }
 
 # ---------------------------
-# CompletionPredictor
+# FZF
 # ---------------------------
-if (Get-Module -ListAvailable -Name CompletionPredictor)
-{
-    Import-Module CompletionPredictor
-}
+
+$env:FZF_DEFAULT_OPTS = @"
+--height=45%
+--layout=reverse
+--border=rounded
+--cycle
+--info=inline-right
+--prompt=❯
+--pointer=▶
+--marker=✓
+--preview-window=hidden
+"@
+
+$env:FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git"
+$env:FZF_CTRL_T_COMMAND = $env:FZF_DEFAULT_COMMAND
 
 # ---------------------------
 # PSFzf
@@ -48,6 +74,18 @@ if (Get-Module -ListAvailable -Name PSFzf)
 
     Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t'
     Set-PsFzfOption -PSReadlineChordReverseHistory 'Ctrl+r'
+}
+
+# ---------------------------
+# Carapace
+# ---------------------------
+if (Get-Command carapace -ErrorAction SilentlyContinue)
+{
+    $env:CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
+
+    carapace _carapace powershell |
+        Out-String |
+        Invoke-Expression
 }
 
 # ---------------------------
@@ -63,7 +101,7 @@ if (Get-Command starship -ErrorAction SilentlyContinue)
 # ---------------------------
 if (Get-Command zoxide -ErrorAction SilentlyContinue)
 {
-    Invoke-Expression (& { (zoxide init powershell | Out-String) })
+    Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String) })
 }
 
 # ---------------------------
@@ -78,7 +116,11 @@ $EzaDefaults = @(
 # ALIASES
 # ===========================
 
+
+# tools
+Set-Alias cat bat
 Set-Alias vim nvim
+Set-Alias btop btop4win
 
 # Winget
 Set-Alias wi winget-install
@@ -103,9 +145,6 @@ Set-Alias ls eza-ls
 Set-Alias ll eza-list-long
 Set-Alias lt eza-tree
 Set-Alias lsd eza-list-directories
-
-# tools
-Set-Alias cat bat
 
 # ===========================
 # FUNCTIONS
@@ -216,4 +255,8 @@ function java21
     java -version
 }
 
+# ---------- WSL -----------
 
+function wslh {
+    wsl -d archlinux --cd /home/zeroarch
+}
