@@ -260,3 +260,9 @@ function java21
 function wslh {
     wsl -d archlinux --cd /home/zeroarch
 }
+
+# --------- zellij ---------
+
+function tmux {
+    & zellij @Args
+}
