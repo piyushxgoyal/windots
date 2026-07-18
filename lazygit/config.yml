@@ -1,0 +1,13 @@
+gui:
+  nerdFontsVersion: "3"
+
+git:
+  pagers:
+    - colorArg: always
+      pager: delta --paging=never
+
+os:
+  edit: 'env NVIM_APPNAME=nvim-nvchad nvim {{filename}}'
+  editAtLine: 'env NVIM_APPNAME=nvim-nvchad nvim +{{line}} {{filename}}'
+  editAtLineAndWait: 'env NVIM_APPNAME=nvim-nvchad nvim +{{line}} {{filename}}'
+  editInTerminal: true

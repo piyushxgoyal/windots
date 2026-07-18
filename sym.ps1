@@ -1,48 +1,89 @@
-Write-Host "Setting up symlinks..." -ForegroundColor Cyan
+# sym.ps1 - Symlink Manager
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# PowerShell profile
-$profileTarget = "$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
-$profileSource = "$HOME\dotfiles-win\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
+#Requires -Version 7
 
-Write-Host "Linking PowerShell profile..." -ForegroundColor Yellow
+Set-Location $PSScriptRoot
+[Environment]::CurrentDirectory = $PSScriptRoot
 
-if (Test-Path $profileTarget) {
-    Remove-Item $profileTarget -Force
-    Write-Host "Removed existing profile" -ForegroundColor DarkGray
+# Destination (Windows real path) => Source (relative to repo root)
+ $symlinks = [ordered]@{
+    "$HOME\.gitconfig"                                    = ".\.gitconfig"
+    "$PROFILE"                                            = ".\powershell\Profile.ps1"
+    "$HOME\.config\starship.toml"                         = ".\starship\starship.toml"
+    "$HOME\AppData\Local\btop"                            = ".\btop"
+    "$HOME\AppData\Roaming\lazygit"                       = ".\lazygit"
+    "$HOME\.config\mise"                                  = ".\mise"
+    "$HOME\AppData\Roaming\mpv"                           = ".\mpv"
+    "$HOME\AppData\Local\nvim"                            = ".\nvim"
+    "$HOME\AppData\Roaming\VSCodium\User"                 = ".\VSCodium\User"
+    "$HOME\AppData\Roaming\Zed\settings.json"             = ".\zed\settings.json"
+    "$HOME\.config\wezterm"                               = ".\wezterm"
 }
 
-New-Item -ItemType SymbolicLink -Path $profileTarget -Target $profileSource | Out-Null
-Write-Host "✔ PowerShell profile linked" -ForegroundColor Green
+function Remove-ExistingLink {
+    param([Parameter(Mandatory)][string]$Path)
 
+    if (-not (Test-Path -LiteralPath $Path)) { return }
 
-# mpv config
-$mpvTarget = "$env:APPDATA\mpv"
-$mpvSource = "$HOME\dotfiles-win\AppData\Roaming\mpv"
+    $item = Get-Item -LiteralPath $Path -Force
+    $isReparse = ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0
 
-Write-Host "Linking mpv config..." -ForegroundColor Yellow
-
-if (Test-Path $mpvTarget) {
-    Remove-Item $mpvTarget -Recurse -Force
-    Write-Host "Removed existing mpv config" -ForegroundColor DarkGray
+    if ($isReparse) {
+        # It's a symlink/junction — delete the LINK only, never the target.
+        if ($item.PSIsContainer) {
+            [System.IO.Directory]::Delete($Path, $false)
+        } else {
+            [System.IO.File]::Delete($Path)
+        }
+    }
+    else {
+        # Real file/dir at destination — remove it.
+        Remove-Item -LiteralPath $Path -Force -Recurse
+    }
 }
 
-New-Item -ItemType SymbolicLink -Path $mpvTarget -Target $mpvSource | Out-Null
-Write-Host "✔ mpv config linked" -ForegroundColor Green
+function New-Link {
+    param(
+        [Parameter(Mandatory)][string]$Link,
+        [Parameter(Mandatory)][string]$Target
+    )
 
+    # Resolve source relative to repo root
+    $sourcePath = Join-Path $PSScriptRoot $Target
+    if (-not (Test-Path -LiteralPath $sourcePath)) {
+        Write-Host "  [SKIP]  source missing: $sourcePath" -ForegroundColor DarkYellow
+        return
+    }
+    $source = (Resolve-Path -LiteralPath $sourcePath).Path
 
-# Git config
-$gitTarget = "$HOME\.gitconfig"
-$gitSource = "$HOME\dotfiles-win\.gitconfig"
+    # Ensure parent dir of the link exists
+    $parent = Split-Path -Parent $Link
+    if ($parent -and -not (Test-Path -LiteralPath $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
 
-Write-Host "Linking Git config..." -ForegroundColor Yellow
+    Remove-ExistingLink -Path $Link
 
-if (Test-Path $gitTarget) {
-    Remove-Item $gitTarget -Force
-    Write-Host "Removed existing .gitconfig" -ForegroundColor DarkGray
+    try {
+        New-Item -ItemType SymbolicLink -Path $Link -Target $source -Force | Out-Null
+        Write-Host "  [link]  $Link  ->  $source" -ForegroundColor Green
+    }
+    catch {
+        # Fallback: Junctions work for directories without admin/Developer Mode
+        if (Test-Path -LiteralPath $source -PathType Container) {
+            cmd /c mklink /J "$Link" "$source" | Out-Null
+            Write-Host "  [junc]  $Link  ->  $source" -ForegroundColor Yellow
+        }
+        else {
+            Write-Host "  [ERROR] $Link : $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
 }
 
-New-Item -ItemType SymbolicLink -Path $gitTarget -Target $gitSource | Out-Null
-Write-Host "✔ Git config linked" -ForegroundColor Green
+Write-Host "==> Creating symbolic links..." -ForegroundColor Cyan
+foreach ($kv in $symlinks.GetEnumerator()) {
+    New-Link -Link $kv.Key -Target $kv.Value
+}
 
-
-Write-Host "Done." -ForegroundColor Cyan
+Write-Host "==> Done." -ForegroundColor Cyan
