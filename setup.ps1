@@ -85,18 +85,6 @@ foreach ($dep in $wingetDeps) {
 # ── Environment variables ───────────────────────────────────────────────────
 Write-Host "==> Setting user environment variables..." -ForegroundColor Cyan
 
-# WezTerm: point at the repo dir so multi-file Lua modules resolve cleanly.
-[Environment]::SetEnvironmentVariable(
-    "WEZTERM_CONFIG_DIR",
-    "$PSScriptRoot\wezterm",
-    [System.EnvironmentVariableTarget]::User
-)
-[Environment]::SetEnvironmentVariable(
-    "WEZTERM_CONFIG_FILE",
-    $null,
-    [System.EnvironmentVariableTarget]::User
-)
-
 # Starship: explicit config path
 [Environment]::SetEnvironmentVariable(
     "STARSHIP_CONFIG",

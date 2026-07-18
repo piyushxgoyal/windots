@@ -131,6 +131,14 @@ $EzaDefaults = @(
 )
 
 # ===========================
+# Plugins
+# ===========================
+
+if (Get-Module -ListAvailable -Name git-aliases) {
+    Import-Module git-aliases -DisableNameChecking
+}
+
+# ===========================
 # ALIASES
 # ===========================
 
@@ -287,10 +295,12 @@ function tmux {
 
 # --------- gh ------------
 
-function ghprv {
+function gh-private {
     gh repo create --private --source=. --remote=origin --push
 }
 
-function ghpub {
+function gh-public {
     gh repo create --public --source=. --remote=origin --push
 }
+
+
