@@ -8,17 +8,18 @@ Set-Location $PSScriptRoot
 
 # Destination (Windows real path) => Source (relative to repo root)
  $symlinks = [ordered]@{
-    "$HOME\.gitconfig"                                    = ".\.gitconfig"
-    "$PROFILE"                                            = ".\powershell\Profile.ps1"
-    "$HOME\.config\starship.toml"                         = ".\starship\starship.toml"
-    "$HOME\AppData\Local\btop"                            = ".\btop"
-    "$HOME\AppData\Roaming\lazygit"                       = ".\lazygit"
-    "$HOME\.config\mise"                                  = ".\mise"
-    "$HOME\AppData\Roaming\mpv"                           = ".\mpv"
-    "$HOME\AppData\Local\nvim"                            = ".\nvim"
-    "$HOME\AppData\Roaming\VSCodium\User"                 = ".\VSCodium\User"
-    "$HOME\AppData\Roaming\Zed\settings.json"             = ".\zed\settings.json"
-    "$HOME\.config\wezterm"                               = ".\wezterm"
+    "$HOME\.gitconfig"                                     = ".gitconfig"
+    "$PROFILE"                                             = "powershell\Profile.ps1"
+    "$HOME\.config\starship.toml"                          = "starship\starship.toml"
+    "$HOME\AppData\Local\btop"                             = "btop"
+    "$HOME\AppData\Roaming\lazygit"                        = "lazygit"
+    "$HOME\.config\mise"                                   = "mise"
+    "$HOME\AppData\Roaming\mpv"                            = "mpv"
+    "$HOME\AppData\Local\nvim"                             = "nvim"
+    "$HOME\AppData\Roaming\VSCodium\User\settings.json"    = "VSCodium\User\settings.json"
+    "$HOME\AppData\Roaming\VSCodium\User\keybindings.json" = "VSCodium\User\keybindings.json"
+    "$HOME\AppData\Roaming\VSCodium\User\snippets"         = "VSCodium\User\snippets"
+    "$HOME\.config\wezterm"                                = "wezterm"
 }
 
 function Remove-ExistingLink {

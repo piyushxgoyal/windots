@@ -1,15 +1,1 @@
-// Place your key bindings in this file to override the defaults
-[
-    {
-        "key": "ctrl+shift+meta+n",
-        "command": "workbench.action.files.newUntitledFile"
-    },
-    {
-        "key": "ctrl+n",
-        "command": "-workbench.action.files.newUntitledFile"
-    },
-    {
-        "key": "ctrl+n",
-        "command": "explorer.newFile"
-    }
-]
+C:/Users/zero/windots/VSCodium/User/keybindings.json
