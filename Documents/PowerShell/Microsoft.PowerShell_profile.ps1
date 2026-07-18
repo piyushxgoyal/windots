@@ -37,13 +37,33 @@ if (Get-Module -ListAvailable -Name PSReadLine)
     # Better Tab completion
     Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
 
-    # History search by current input
-    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+    #cursor to end
+    Set-PSReadLineOption -HistorySearchCursorMovesToEnd
 
-    # Set-PSReadLineOption -Colors @{
-    #    Selection = "`e[7m"
-    # }
+    Set-PSReadLineOption -Colors @{
+       Selection = "`e[7m"
+    }
+}
+
+# ---------------------------
+# native FZF
+# ---------------------------
+Set-PSReadLineKeyHandler -Chord Ctrl+r -ScriptBlock {
+    $command = Get-Content (Get-PSReadLineOption).HistorySavePath |
+        Sort-Object -Unique |
+        fzf --tac
+
+    if ($command) {
+        [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+        [Microsoft.PowerShell.PSConsoleReadLine]::Insert($command)
+    }
+}
+Set-PSReadLineKeyHandler -Chord Ctrl+t -ScriptBlock {
+    $file = fd --type f --hidden --follow --exclude .git | fzf
+
+    if ($file) {
+        [Microsoft.PowerShell.PSConsoleReadLine]::Insert($file)
+    }
 }
 
 # ---------------------------
@@ -51,6 +71,7 @@ if (Get-Module -ListAvailable -Name PSReadLine)
 # ---------------------------
 
 $env:FZF_DEFAULT_OPTS = @"
+--ansi
 --height=45%
 --layout=reverse
 --border=rounded
@@ -64,17 +85,6 @@ $env:FZF_DEFAULT_OPTS = @"
 
 $env:FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git"
 $env:FZF_CTRL_T_COMMAND = $env:FZF_DEFAULT_COMMAND
-
-# ---------------------------
-# PSFzf
-# ---------------------------
-if (Get-Module -ListAvailable -Name PSFzf)
-{
-    Import-Module PSFzf
-
-    Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t'
-    Set-PsFzfOption -PSReadlineChordReverseHistory 'Ctrl+r'
-}
 
 # ---------------------------
 # Carapace
@@ -102,6 +112,14 @@ if (Get-Command starship -ErrorAction SilentlyContinue)
 if (Get-Command zoxide -ErrorAction SilentlyContinue)
 {
     Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String) })
+}
+
+# ---------------------------
+# zoxide
+# ---------------------------
+if (Get-Command mise -ErrorAction SilentlyContinue)
+{
+    mise activate pwsh | Out-String | Invoke-Expression
 }
 
 # ---------------------------
@@ -265,4 +283,14 @@ function wslh {
 
 function tmux {
     & zellij @Args
+}
+
+# --------- gh ------------
+
+function ghprv {
+    gh repo create --private --source=. --remote=origin --push
+}
+
+function ghpub {
+    gh repo create --public --source=. --remote=origin --push
 }
