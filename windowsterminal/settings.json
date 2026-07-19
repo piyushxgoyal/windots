@@ -1,0 +1,148 @@
+{
+    "$help": "https://aka.ms/terminal-documentation",
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+    "actions": 
+    [
+        {
+            "command": 
+            {
+                "action": "newTab",
+                "profile": "archlinux"
+            },
+            "id": "User.newTab.FE462F8B"
+        }
+    ],
+    "centerOnLaunch": true,
+    "copyFormatting": "none",
+    "copyOnSelect": false,
+    "defaultProfile": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+    "keybindings": 
+    [
+        {
+            "id": "Terminal.CopyToClipboard",
+            "keys": "ctrl+c"
+        },
+        {
+            "id": "Terminal.PasteFromClipboard",
+            "keys": "ctrl+v"
+        },
+        {
+            "id": "Terminal.FindText",
+            "keys": "ctrl+shift+f"
+        },
+        {
+            "id": "Terminal.DuplicatePaneAuto",
+            "keys": "alt+shift+d"
+        },
+        {
+            "id": "User.newTab.FE462F8B",
+            "keys": "ctrl+`"
+        }
+    ],
+    "launchMode": "focus",
+    "newTabMenu": 
+    [
+        {
+            "type": "remainingProfiles"
+        }
+    ],
+    "profiles": 
+    {
+        "defaults": 
+        {
+            "colorScheme": "Cyberdream",
+            "cursorShape": "filledBox",
+            "font": 
+            {
+                "face": "JetBrainsMono Nerd Font Mono",
+                "size": 10.4
+            },
+            "opacity": 90,
+            "padding": "10",
+            "scrollbarState": "hidden",
+            "useAcrylic": true
+        },
+        "list": 
+        [
+            {
+                "commandline": "%SystemRoot%\\System32\\cmd.exe",
+                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                "hidden": false,
+                "name": "Command Prompt"
+            },
+            {
+                "commandline": "pwsh.exe --nologo",
+                "font": 
+                {
+                    "size": 11.5
+                },
+                "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+                "hidden": false,
+                "name": "PowerShell",
+                "source": "Windows.Terminal.PowershellCore"
+            },
+            {
+                "guid": "{190aa2f0-632e-57ab-b745-02dc62b42525}",
+                "hidden": false,
+                "name": "archlinux",
+                "source": "Microsoft.WSL"
+            },
+            {
+                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+                "hidden": false,
+                "name": "Windows PowerShell"
+            }
+        ]
+    },
+    "schemes": 
+    [
+        {
+            "background": "#16181A",
+            "black": "#16181A",
+            "blue": "#5EA1FF",
+            "brightBlack": "#3C4048",
+            "brightBlue": "#5EA1FF",
+            "brightCyan": "#5EF1FF",
+            "brightGreen": "#5EFF6C",
+            "brightPurple": "#BD5EFF",
+            "brightRed": "#FF6E5E",
+            "brightWhite": "#FFFFFF",
+            "brightYellow": "#F1FF5E",
+            "cursorColor": "#FFFFFF",
+            "cyan": "#5EF1FF",
+            "foreground": "#FFFFFF",
+            "green": "#5EFF6C",
+            "name": "Cyberdream",
+            "purple": "#BD5EFF",
+            "red": "#FF6E5E",
+            "selectionBackground": "#3C4048",
+            "white": "#FFFFFF",
+            "yellow": "#F1FF5E"
+        },
+        {
+            "background": "#1A1B2C",
+            "black": "#414868",
+            "blue": "#7AA2F7",
+            "brightBlack": "#414868",
+            "brightBlue": "#7AA2F7",
+            "brightCyan": "#7DCFFF",
+            "brightGreen": "#73DACA",
+            "brightPurple": "#BB9AF7",
+            "brightRed": "#F7768E",
+            "brightWhite": "#C0CAF5",
+            "brightYellow": "#E0AF68",
+            "cursorColor": "#C0CAF5",
+            "cyan": "#7DCFFF",
+            "foreground": "#A9B1DC",
+            "green": "#73DACA",
+            "name": "Tokyo Night",
+            "purple": "#BB9AF7",
+            "red": "#F7768E",
+            "selectionBackground": "#28344A",
+            "white": "#C0CAF5",
+            "yellow": "#E0AF68"
+        }
+    ],
+    "showTabsInTitlebar": true,
+    "themes": []
+}

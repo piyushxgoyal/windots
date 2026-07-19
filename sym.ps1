@@ -20,6 +20,7 @@ Set-Location $PSScriptRoot
     "$HOME\AppData\Roaming\VSCodium\User\keybindings.json" = "VSCodium\User\keybindings.json"
     "$HOME\AppData\Roaming\VSCodium\User\snippets"         = "VSCodium\User\snippets"
     "$HOME\.config\wezterm"                                = "wezterm"
+    "$HOME\AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json" = "windowsterminal\settings.json"
 }
 
 function Remove-ExistingLink {
