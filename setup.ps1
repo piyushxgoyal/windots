@@ -78,22 +78,30 @@ foreach ($dep in $wingetDeps) {
     }
 }
 
-# Refresh PATH so newly installed tools are visible in this session
+# Refresh PATH for the current session so newly installed tools are visible immediately
  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
             [System.Environment]::GetEnvironmentVariable("Path","User")
 
-# ── Environment variables ───────────────────────────────────────────────────
-Write-Host "==> Setting user environment variables..." -ForegroundColor Cyan
-
-# Starship: explicit config path
-[Environment]::SetEnvironmentVariable(
-    "STARSHIP_CONFIG",
-    "$PSScriptRoot\starship\starship.toml",
-    [System.EnvironmentVariableTarget]::User
+# ── PowerShell Modules ──────────────────────────────────────────────────────
+Write-Host "==> Installing missing PowerShell modules..." -ForegroundColor Cyan
+ $psModules = @(
+    "PSFzf"
+    "git-aliases"
 )
+
+# Ensure PSGallery is trusted to avoid prompts
+if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne 'Trusted') {
+    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+}
+
+foreach ($psModule in $psModules) {
+    if (!(Get-Module -ListAvailable -Name $psModule)) {
+        Install-Module -Name $psModule -Force -AcceptLicense -Scope CurrentUser -SkipPublisherCheck
+    }
+}
 
 # ── Hand off to sym.ps1 ─────────────────────────────────────────────────────
 Write-Host "==> Creating symbolic links via sym.ps1..." -ForegroundColor Cyan
 & "$PSScriptRoot\sym.ps1"
 
-Write-Host "`n==> Done. Restart your shell so env vars + PATH take effect." -ForegroundColor Green
+Write-Host "`n==> Done. Restart your shell so PATH updates take full effect." -ForegroundColor Green

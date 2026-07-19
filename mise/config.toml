@@ -1,2 +1,5 @@
 [tools]
 go = "1.26"
+java = "temurin-21"
+node = "lts"
+python = "3.13"

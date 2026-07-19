@@ -5,127 +5,74 @@
 # ---------------------------
 # PowerToys Command Not Found
 # ---------------------------
-if (Get-Module -ListAvailable -Name Microsoft.WinGet.CommandNotFound)
-{
+if (Get-Module -ListAvailable -Name Microsoft.WinGet.CommandNotFound) {
     Import-Module Microsoft.WinGet.CommandNotFound
 }
 
 # ---------------------------
 # PSReadLine
 # ---------------------------
-if (Get-Module -ListAvailable -Name PSReadLine)
-{
+if (Get-Module -ListAvailable -Name PSReadLine) {
     Import-Module PSReadLine
 
-    # Predictions
     Set-PSReadLineOption -PredictionSource HistoryAndPlugin
     Set-PSReadLineOption -PredictionViewStyle ListView
+    Set-PSReadLineOption -HistoryNoDuplicates
+    Set-PSReadLineOption -BellStyle None
+    Set-PSReadLineOption -HistorySearchCursorMovesToEnd
 
     # Vim-style navigation in ListView
     Set-PSReadLineKeyHandler -Chord Ctrl+j -Function NextSuggestion
     Set-PSReadLineKeyHandler -Chord Ctrl+k -Function PreviousSuggestion
-
-    # History
-    Set-PSReadLineOption -HistoryNoDuplicates
-
-    # Disable terminal bell
-    Set-PSReadLineOption -BellStyle None
-
-    # Delete previous word
     Set-PSReadLineKeyHandler -Chord Ctrl+Backspace -Function BackwardKillWord
-
-    # Better Tab completion
     Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
 
-    #cursor to end
-    Set-PSReadLineOption -HistorySearchCursorMovesToEnd
-
     Set-PSReadLineOption -Colors @{
-       Selection = "`e[7m"
+        Selection = "`e[7m"
     }
 }
 
 # ---------------------------
-# native FZF
+# FZF (Official PSFzf Module)
 # ---------------------------
-Set-PSReadLineKeyHandler -Chord Ctrl+r -ScriptBlock {
-    $command = Get-Content (Get-PSReadLineOption).HistorySavePath |
-        Sort-Object -Unique |
-        fzf --tac
-
-    if ($command) {
-        [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
-        [Microsoft.PowerShell.PSConsoleReadLine]::Insert($command)
-    }
+if (Get-Module -ListAvailable -Name PSFzf) {
+    Import-Module PSFzf
+    Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
 }
-Set-PSReadLineKeyHandler -Chord Ctrl+t -ScriptBlock {
-    $file = fd --type f --hidden --follow --exclude .git | fzf
-
-    if ($file) {
-        [Microsoft.PowerShell.PSConsoleReadLine]::Insert($file)
-    }
-}
-
-# ---------------------------
-# FZF
-# ---------------------------
-
-$env:FZF_DEFAULT_OPTS = @"
---ansi
---height=45%
---layout=reverse
---border=rounded
---cycle
---info=inline-right
---prompt=❯
---pointer=▶
---marker=✓
---preview-window=hidden
-"@
-
-$env:FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git"
-$env:FZF_CTRL_T_COMMAND = $env:FZF_DEFAULT_COMMAND
 
 # ---------------------------
 # Carapace
 # ---------------------------
-if (Get-Command carapace -ErrorAction SilentlyContinue)
-{
+if (Get-Command carapace -ErrorAction SilentlyContinue) {
     $env:CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
-
-    carapace _carapace powershell |
-        Out-String |
-        Invoke-Expression
+    carapace _carapace powershell | Out-String | Invoke-Expression
 }
 
 # ---------------------------
 # Starship
 # ---------------------------
-if (Get-Command starship -ErrorAction SilentlyContinue)
-{
+if (Get-Command starship -ErrorAction SilentlyContinue) {
     Invoke-Expression (& starship init powershell)
 }
 
 # ---------------------------
 # zoxide
 # ---------------------------
-if (Get-Command zoxide -ErrorAction SilentlyContinue)
-{
-    Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String) })
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+    Invoke-Expression (& zoxide init powershell --cmd cd | Out-String)
 }
 
 # ---------------------------
-# zoxide
+# mise
 # ---------------------------
-if (Get-Command mise -ErrorAction SilentlyContinue)
-{
+if (Get-Command mise -ErrorAction SilentlyContinue) {
     mise activate pwsh | Out-String | Invoke-Expression
 }
 
 # ---------------------------
 # Shared eza defaults
 # ---------------------------
-$EzaDefaults = @(
+ $EzaDefaults = @(
     "--icons"
     "--group-directories-first"
 )
@@ -139,11 +86,10 @@ if (Get-Module -ListAvailable -Name git-aliases) {
 }
 
 # ===========================
-# ALIASES
+# Aliases
 # ===========================
 
-
-# tools
+# Tools
 Set-Alias cat bat
 Set-Alias vim nvim
 Set-Alias btop btop4win
@@ -173,134 +119,47 @@ Set-Alias lt eza-tree
 Set-Alias lsd eza-list-directories
 
 # ===========================
-# FUNCTIONS
+# Functions
 # ===========================
 
-# ---------- eza ----------
+# ---------------------------
+# eza
+# ---------------------------
+function eza-ls { eza @EzaDefaults -a --header @args }
+function eza-list { eza @EzaDefaults @args }
+function eza-list-long { eza @EzaDefaults -la --header --git --time-style=long-iso @args }
+function eza-list-directories { eza @EzaDefaults -D @args }
+function eza-tree { eza @EzaDefaults --tree @args }
 
-function eza-ls
-{
-    eza @EzaDefaults -a --header @args
-}
+# ---------------------------
+# Fastfetch
+# ---------------------------
+function fastfetch-windows { fastfetch --logo windows @args }
 
-function eza-list
-{
-    eza @EzaDefaults @args
-}
+# ---------------------------
+# Navigation
+# ---------------------------
+function cd-code-folder { Set-Location "$HOME\Desktop\code" }
+function cd-desktop { Set-Location "$HOME\Desktop" }
 
-function eza-list-long
-{
-    eza @EzaDefaults -la --header --git --time-style=long-iso @args
-}
+# ---------------------------
+# Winget
+# ---------------------------
+function winget-search { winget.exe search @args }
+function winget-install { winget.exe install @args }
+function winget-upgrade-all { winget.exe upgrade --all }
+function winget-upgrade { winget.exe upgrade @args }
+function winget-remove { winget.exe remove @args }
+function winget-show { winget.exe show @args }
+function winget-list { winget.exe list @args }
 
-function eza-list-directories
-{
-    eza @EzaDefaults -D @args
-}
+# ---------------------------
+# WSL
+# ---------------------------
+function wslh { wsl -d archlinux --cd /home/zeroarch }
 
-function eza-tree
-{
-    eza @EzaDefaults --tree @args
-}
-
-# ---------- Fastfetch ----------
-
-function fastfetch-windows
-{
-    fastfetch --logo windows @args
-}
-
-# ---------- Navigation ----------
-
-function cd-code-folder
-{
-    Set-Location "$HOME\Desktop\code"
-}
-
-function cd-desktop
-{
-    Set-Location "$HOME\Desktop"
-}
-
-# ---------- Winget ----------
-
-function winget-search
-{
-    param([string[]]$Arguments)
-    & winget.exe search @Arguments
-}
-
-function winget-install
-{
-    param([string[]]$Arguments)
-    & winget.exe install @Arguments
-}
-
-function winget-upgrade-all
-{
-    & winget.exe upgrade --all
-}
-
-function winget-upgrade
-{
-    param([string[]]$Arguments)
-    & winget.exe upgrade @Arguments
-}
-
-function winget-remove
-{
-    param([string[]]$Arguments)
-    & winget.exe remove @Arguments
-}
-
-function winget-show
-{
-    param([string[]]$Arguments)
-    & winget.exe show @Arguments
-}
-
-function winget-list
-{
-    param([string[]]$Arguments)
-    & winget.exe list @Arguments
-}
-
-# ---------- Java ----------
-
-function java17
-{
-    $env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
-    $env:Path = "$env:JAVA_HOME\bin;" + (($env:Path -split ';') | Where-Object { $_ -notmatch 'Java\\jdk-' } | Join-String -Separator ';')
-    java -version
-}
-
-function java21
-{
-    $env:JAVA_HOME = "C:\Program Files\Java\jdk-21"
-    $env:Path = "$env:JAVA_HOME\bin;" + (($env:Path -split ';') | Where-Object { $_ -notmatch 'Java\\jdk-' } | Join-String -Separator ';')
-    java -version
-}
-
-# ---------- WSL -----------
-
-function wslh {
-    wsl -d archlinux --cd /home/zeroarch
-}
-
-# --------- zellij ---------
-
-function tmux {
-    & zellij @Args
-}
-
-# --------- gh ------------
-
-function gh-private {
-    gh repo create --private --source=. --remote=origin --push
-}
-
-function gh-public {
-    gh repo create --public --source=. --remote=origin --push
-}
-
-
+# ---------------------------
+# GitHub CLI
+# ---------------------------
+function gh-private { gh repo create --private --source=. --remote=origin --push }
+function gh-public { gh repo create --public --source=. --remote=origin --push }
