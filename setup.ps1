@@ -50,7 +50,6 @@ Set-Location $PSScriptRoot
     "DBeaver.DBeaver.Community"     # DBeaver
     "Docker.DockerDesktop"          # Docker Desktop
     "Doppler.doppler"               # Doppler
-    "Proton.ProtonPass.CLI"         # proton pass cli
     "geeksoftwareGmbH.PDF24Creator" # PDF24 Creator
     "M2Team.NanaZip"                # NanaZip
     "MarkText.MarkText"             # MarkText
