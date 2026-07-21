@@ -50,6 +50,7 @@ Set-Location $PSScriptRoot
     "DBeaver.DBeaver.Community"     # DBeaver
     "Docker.DockerDesktop"          # Docker Desktop
     "Doppler.doppler"               # Doppler
+    "Proton.ProtonPass.CLI"         # proton pass cli
     "geeksoftwareGmbH.PDF24Creator" # PDF24 Creator
     "M2Team.NanaZip"                # NanaZip
     "MarkText.MarkText"             # MarkText
@@ -57,6 +58,7 @@ Set-Location $PSScriptRoot
     "Microsoft.WSL"                 # WSL
     "Obsidian.Obsidian"             # Obsidian
     "Proton.ProtonVPN"              # Proton VPN
+    "Proton.ProtonPass"             # Proton PASS
     "REALiX.HWiNFO"                 # HWiNFO
     "SumatraPDF.SumatraPDF"         # Sumatra PDF
     "VSCodium.VSCodium"             # VSCodium
