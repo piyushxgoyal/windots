@@ -44,6 +44,7 @@ Set-PSReadLineKeyHandler -Chord Ctrl+j -Function NextSuggestion
 Set-PSReadLineKeyHandler -Chord Ctrl+k -Function PreviousSuggestion
 Set-PSReadLineKeyHandler -Chord Ctrl+Backspace -Function BackwardKillWord
 Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+Set-PSReadLineKeyHandler -Chord Enter -Function ValidateAndAcceptLine
 
 Set-PSReadLineOption -Colors @{
     Selection = "`e[7m"
@@ -190,3 +191,101 @@ function Enter-MSVC {
         }
 }
 
+# ===========================
+# Command Completion Sound Notifications
+# ===========================
+
+# ---------------------------
+# Configuration
+# ---------------------------
+$global:CommandSoundEnabled = $true
+$global:CommandSoundThresholdSeconds = 10
+$global:CommandSoundStartedAt = $null
+
+# ---------------------------
+# Toggle Helpers
+# ---------------------------
+function Enable-CommandSound {
+    $global:CommandSoundEnabled = $true
+    Write-Host "Command sounds: ON" -ForegroundColor Green
+}
+
+function Disable-CommandSound {
+    $global:CommandSoundEnabled = $false
+    Write-Host "Command sounds: OFF" -ForegroundColor Yellow
+}
+
+function Get-CommandSoundStatus {
+    [pscustomobject]@{
+        Enabled          = $global:CommandSoundEnabled
+        ThresholdSeconds = $global:CommandSoundThresholdSeconds
+    }
+}
+
+# ---------------------------
+# Command Start Detection
+# ---------------------------
+# PSReadLine calls this before executing an accepted command.
+Set-PSReadLineOption -CommandValidationHandler {
+    param(
+        [System.Management.Automation.Language.CommandAst]$CommandAst
+    )
+
+    $global:CommandSoundStartedAt =
+        [System.Diagnostics.Stopwatch]::GetTimestamp()
+}
+
+# ---------------------------
+# Preserve Existing Prompt
+# ---------------------------
+# This runs after Starship initialization, preserving its prompt
+# implementation instead of replacing it with a plain prompt.
+if (-not $global:CommandSoundOriginalPrompt) {
+    $global:CommandSoundOriginalPrompt = $function:prompt
+}
+
+# ---------------------------
+# Completion Detection
+# ---------------------------
+function global:prompt {
+    # Capture the previous command's status immediately.
+    $commandSucceeded = $?
+
+    $startedAt = $global:CommandSoundStartedAt
+    $global:CommandSoundStartedAt = $null
+
+    $elapsed = 0
+
+    if ($null -ne $startedAt) {
+        $elapsed = (
+            [System.Diagnostics.Stopwatch]::GetTimestamp() - $startedAt
+        ) / [System.Diagnostics.Stopwatch]::Frequency
+    }
+
+    # Generate Starship's existing prompt.
+    $promptText = & $global:CommandSoundOriginalPrompt
+
+    # Notify only for eligible long-running commands.
+    if (
+        $global:CommandSoundEnabled -and
+        $null -ne $startedAt -and
+        $elapsed -ge $global:CommandSoundThresholdSeconds
+    ) {
+        try {
+            if ($commandSucceeded) {
+                # Success: one high tone.
+                [Console]::Beep(1000, 180)
+            }
+            else {
+                # Failure: two low tones.
+                [Console]::Beep(500, 180)
+                [Console]::Beep(500, 180)
+            }
+        }
+        catch {
+            # Audio failure must not prevent the prompt from rendering.
+        }
+    }
+
+    $promptText
+}
